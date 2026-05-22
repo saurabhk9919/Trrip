@@ -5,6 +5,7 @@ require("dotenv").config();
 const connectDB = require("./src/config/db");
 
 const authRoutes = require("./src/routes/authRoutes");
+const uploadRoutes = require("./src/routes/uploadRoutes");
 
 const app = express();
 
@@ -18,6 +19,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/upload", uploadRoutes);
 
 const PORT = process.env.PORT || 5000;
 
