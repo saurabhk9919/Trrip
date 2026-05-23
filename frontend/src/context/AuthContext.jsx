@@ -2,7 +2,9 @@ import { createContext, useContext,useState,} from "react";
 
 const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user")) || null
+  );
   const login = (userData, token) => {
     localStorage.setItem("token", token);
     localStorage.setItem(
@@ -17,6 +19,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
 
     setUser(null);
+
+    window.location.href = "/login";
   };
 
   return (

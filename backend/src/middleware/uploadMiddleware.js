@@ -1,10 +1,11 @@
 const multer = require("multer");
-const path = require("path");
 
 
+// Storage Configuration
 const storage = multer.diskStorage({
 
   destination: function (req, file, cb) {
+
     cb(null, "src/uploads/");
   },
 
@@ -16,32 +17,11 @@ const storage = multer.diskStorage({
     cb(null, uniqueName);
   },
 });
-const fileFilter = (req, file, cb) => {
 
-  const allowedTypes = [
-    "application/pdf",
-    "image/png",
-    "image/jpeg",
-    "image/jpg",
-  ];
 
-  if (allowedTypes.includes(file.mimetype)) {
-
-    cb(null, true);
-
-  } else {
-
-    cb(
-      new Error(
-        "Only PDF, PNG, JPG, JPEG files are allowed"
-      ),
-      false
-    );
-  }
-};
+// Upload Middleware
 const upload = multer({
   storage,
-  fileFilter,
 });
 
 module.exports = upload;

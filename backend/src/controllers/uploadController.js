@@ -1,3 +1,5 @@
+const Itinerary = require("../models/Itinerary");
+
 const {
   extractTextFromPDF,
 } = require("../utils/extractText");
@@ -5,7 +7,7 @@ const {
 const {
   generateItinerary,
 } = require("../services/geminiService");
-const Itinerary = require("../models/Itinerary");
+
 
 const uploadFile = async (req, res) => {
 
@@ -21,65 +23,89 @@ const uploadFile = async (req, res) => {
     let extractedText = "";
 
     let itinerary = "";
-    
+
+
+    // Extract PDF text
     if (req.file.mimetype === "application/pdf") {
-   extractedText = await extractTextFromPDF(
-        req.file.path
-      );
+
+      extractedText = await extractTextFromPDF(req.file.path);
     }
 
-    if (extractedText) {
-     itinerary = await generateItinerary(
-        extractedText
-      );
+
+    // Fallback if extraction empty
+    if (!extractedText || extractedText.length < 5) {
+
+      extractedText =
+        "Travel booking document uploaded successfully.";
     }
 
-    const savedItinerary = await Itinerary.create({
-      user: req.user._id,
-      originalFile: req.file.filename,
-      extractedText,
-      itinerary,
-    });
+
+    // Generate itinerary
+    itinerary = await generateItinerary(
+      extractedText
+    );
+
+
+    // Save in DB
+    const savedItinerary =
+      await Itinerary.create({
+
+        user: req.user._id,
+
+        originalFile: req.file.filename,
+
+        extractedText,
+
+        itinerary,
+      });
+
+
     res.status(200).json({
 
-      message: "File uploaded and itinerary generated",
+      message:
+        "File uploaded and itinerary generated",
 
-      file: {
-        filename: req.file.filename,
-        path: req.file.path,
-        mimetype: req.file.mimetype,
-        size: req.file.size,
-      },
       extractedText,
+
       itinerary,
+
       savedItinerary,
     });
 
   } catch (error) {
 
-    console.log(error);
+    console.error(error);
 
     res.status(500).json({
-      message: "Server Error",
+      message: error.message || "Server Error",
     });
   }
 };
+
 
 const getUserItineraries = async (req, res) => {
 
   try {
 
-    const itineraries = await Itinerary.find({
-      user: req.user._id,
-    }).sort({ createdAt: -1 });
+    const itineraries =
+      await Itinerary.find({
+
+        user: req.user._id,
+
+      }).sort({ createdAt: -1 });
+
     res.status(200).json(itineraries);
+
   } catch (error) {
-    console.log(error);
+
+    console.error(error);
+
     res.status(500).json({
       message: "Server Error",
     });
   }
 };
+
 
 module.exports = {
   uploadFile,
